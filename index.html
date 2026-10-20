@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>台一不動產尾牙搶答遊戲</title>
+<style>
+:root {
+  --site-primary: #B71C1C;
+  --site-on-primary: #FFFFFF;
+  --site-secondary: #F9C846;
+  --site-on-secondary: #421111;
+  --site-background: #FFF7E5;
+  --site-on-background: #351919;
+  --site-font-body: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --site-font-heading: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  color-scheme: light dark;
+}
+* { box-sizing: border-box; }
+body { margin:0; font-family:var(--site-font-body); background:light-dark(#fff7e5,#211817); color:light-dark(#351919,#fff0df); }
+#app { min-height:100vh; background-color:var(--site-background); color:var(--site-on-background); padding:clamp(16px,3vw,34px); position:relative; overflow:hidden; }
+#app:before { content:"✦　✧　✦"; position:absolute; top:18px; right:24px; color:var(--site-secondary); opacity:calc(var(--site-decoration-opacity) * .55); font-size:clamp(18px,3vw,30px); pointer-events:none; }
+header { max-width:1100px; margin:0 auto 22px; text-align:center; position:relative; }
+.eyebrow { display:inline-block; background:var(--site-secondary); color:var(--site-on-secondary); padding:6px 14px; border-radius:999px; font-weight:900; letter-spacing:.12em; font-size:12px; }
+h1 { color:var(--site-primary); font-size:calc(clamp(30px,5vw,48px) * var(--site-heading-scale)); line-height:1.15; margin:14px 0 8px; font-family:var(--site-font-heading); }
+.subtitle { margin:0; opacity:.75; }
+.layout { max-width:1100px; margin:auto; display:grid; grid-template-columns:minmax(0,1.6fr) minmax(260px,.8fr); gap:18px; }
+.panel { background:light-dark(#fffdf8,#302321); border:1px solid light-dark(#efd8b2,#5c4138); border-radius:calc(22px * var(--site-radius-scale)); padding:calc(22px * var(--site-spacing-scale)); box-shadow:0 12px 28px #5e21120d; }
+.game-panel { display:flex; flex-direction:column; min-height:490px; }
+.topline { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.pill { background:#fbe7e3; color:#9d1717; border-radius:999px; padding:7px 12px; font-weight:800; font-size:13px; }
+.timer { display:flex; align-items:center; gap:8px; font-weight:900; color:var(--site-primary); }
+.timer strong { font-size:24px; font-variant-numeric:tabular-nums; }
+.track { height:7px; background:light-dark(#f0e3d3,#4d3933); border-radius:99px; overflow:hidden; margin:16px 0 26px; }
+#timerBar { height:100%; width:100%; background:var(--site-secondary); transition:width .25s linear; }
+.question-area { flex:1; display:flex; flex-direction:column; justify-content:center; text-align:center; padding:8px 0 22px; }
+.q-number { color:var(--site-primary); font-size:14px; font-weight:900; letter-spacing:.12em; }
+#question { font-size:clamp(24px,3.5vw,36px); line-height:1.5; font-weight:900; margin:16px auto; max-width:720px; }
+#answer { display:none; background:#fff1c4; color:#5b260e; padding:14px 18px; border-radius:14px; font-size:20px; font-weight:900; margin:8px auto 0; max-width:700px; }
+#answer.show { display:block; animation:pop .22s ease-out; }
+@keyframes pop { from{transform:scale(.96);opacity:.4} to{transform:scale(1);opacity:1} }
+.choices { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 22px; }
+.choice { border:1px solid light-dark(#ead7c2,#60453d); border-radius:14px; padding:13px; text-align:left; font-weight:700; background:light-dark(#fffaf1,#3b2a26); }
+.choice b { color:var(--site-primary); margin-right:8px; }
+.controls { display:flex; gap:10px; flex-wrap:wrap; }
+button { border:0; border-radius:12px; padding:12px 16px; font:inherit; font-weight:900; cursor:pointer; transition:transform .12s,filter .12s; }
+button:hover { filter:brightness(1.04); transform:translateY(-1px); }
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible { outline:3px solid #e8a800; outline-offset:2px; }
+.primary { background:var(--site-primary); color:var(--site-on-primary); }
+.gold { background:var(--site-secondary); color:var(--site-on-secondary); }
+.soft { background:light-dark(#f5e8db,#4a3530); color:light-dark(#5c2b20,#fff0df); }
+button:disabled { opacity:.45; cursor:not-allowed; transform:none; }
+.side { display:flex; flex-direction:column; gap:18px; }
+h2 { font-size:18px; margin:0 0 14px; }
+.team { display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:9px; padding:12px 0; border-bottom:1px solid light-dark(#f0e1d2,#503a33); }
+.team:last-child { border-bottom:0; }
+.team-name { font-weight:900; }
+.score { font-size:24px; font-weight:900; color:var(--site-primary); min-width:28px; text-align:center; }
+.mini { padding:7px 10px; border-radius:9px; }
+.score-buttons { display:flex; gap:6px; }
+.field { display:flex; flex-direction:column; gap:6px; margin-bottom:10px; }
+label { font-size:13px; font-weight:900; }
+input,select,textarea { width:100%; border:1px solid light-dark(#e5cdb6,#60453d); border-radius:10px; padding:10px 11px; font:inherit; background:light-dark(#fffaf5,#251c1a); color:inherit; }
+textarea { min-height:70px; resize:vertical; }
+.add-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.note { font-size:12px; opacity:.7; line-height:1.6; margin:10px 0 0; }
+.status { min-height:22px; color:var(--site-primary); font-weight:800; font-size:13px; margin-top:10px; }
+.footer { max-width:1100px; margin:16px auto 0; text-align:center; font-size:12px; opacity:.65; }
+@media(max-width:780px){.layout{grid-template-columns:1fr}.game-panel{min-height:450px}.side{display:grid;grid-template-columns:1fr}.panel{padding:18px}.choices{grid-template-columns:1fr}#app:before{display:none}}
+</style>
+</head>
+<body>
+<div id="app" data-sites-preview-theme="custom">
+<header>
+  <span class="eyebrow">TAI YI · BANQUET GAME</span>
+  <h1>尾牙搶答遊戲・快問快答</h1>
+  <p class="subtitle">準備好了嗎？看題目、搶答、揭曉答案，讓全場熱鬧起來！</p>
+</header>
+<main class="layout">
+  <section class="panel game-panel" aria-label="搶答遊戲區">
+    <div class="topline"><span class="pill" id="roundPill">第 1 題 / 共 8 題</span><div class="timer">⏱ 剩餘 <strong id="timeText">15</strong> 秒</div></div>
+    <div class="track"><div id="timerBar"></div></div>
+    <div class="question-area">
+      <div class="q-number" id="qNumber">QUESTION 01</div>
+      <div id="question">台一不動產尾牙晚宴，最重要的是什麼？</div>
+      <div class="choices" id="choices"></div>
+      <div id="answer" role="status">答案：大家一起開心同樂！</div>
+    </div>
+    <div class="controls">
+      <button class="primary" id="startBtn">▶ 開始倒數</button>
+      <button class="gold" id="revealBtn">揭曉答案</button>
+      <button class="soft" id="prevBtn">上一題</button>
+      <button class="soft" id="nextBtn">下一題 →</button>
+      <button class="soft" id="resetBtn">重新開始</button>
+    </div>
+    <div class="status" id="status" aria-live="polite">主持人準備就緒，按「開始倒數」開始！</div>
+  </section>
+  <aside class="side">
+    <section class="panel">
+      <h2>🏆 隊伍計分板</h2>
+      <div id="teams"></div>
+      <div class="field" style="margin-top:12px"><label for="teamName">新增隊伍</label><div style="display:flex;gap:8px"><input id="teamName" placeholder="輸入隊伍名稱" maxlength="20"><button class="gold" id="addTeamBtn">新增</button></div></div>
+      <p class="note">使用 +1 / −1 即時加減分；分數只在此頁面暫存，重新整理後會重置。</p>
+    </section>
+    <section class="panel">
+      <h2>✍️ 自訂題目</h2>
+      <div class="field"><label for="newQuestion">題目內容</label><textarea id="newQuestion" placeholder="輸入你要考大家的題目"></textarea></div>
+      <div class="field"><label for="newAnswer">正確答案</label><input id="newAnswer" placeholder="輸入正確答案"></div>
+      <div class="add-grid"><div class="field"><label for="newA">選項 A（選填）</label><input id="newA" placeholder="選項 A"></div><div class="field"><label for="newB">選項 B（選填）</label><input id="newB" placeholder="選項 B"></div></div>
+      <div class="add-grid"><div class="field"><label for="newC">選項 C（選填）</label><input id="newC" placeholder="選項 C"></div><div class="field"><label for="newD">選項 D（選填）</label><input id="newD" placeholder="選項 D"></div></div>
+      <button class="primary" id="saveQuestionBtn" style="width:100%">＋ 加入題庫</button>
+      <p class="note">內建題目是示範內容，可自行新增公司題目、趣味題或員工默契題。</p>
+    </section>
+  </aside>
+</main>
+<div class="footer">台一不動產｜尾牙互動小遊戲</div>
+</div>
+<script>
+const initialQuestions = [
+ {q:'台一不動產尾牙晚宴，最重要的是什麼？',a:'大家一起開心同樂！',c:['大家一起開心同樂','比誰喝得多','比誰吃的快','吃飽快回家']},
+ {q:'台一不動產成立在民國哪一年？',a:'110年',c:['108年','109年','110年','111年']},
+ {q:'台一不動產目前有幾位總監？',a:'兩位',c:['一位','兩位','三位']},
+ {q:'以下哪一項是社宅包租代管家庭成員？',a:'申請人戶籍內孫女',c:['申請人戶籍外未成年子女','申請人戶籍內舅媽','申請人戶籍內孫女','申請人戶籍外岳父']},
+ {q:'以下哪一項最適合當作尾牙祝福？',a:'新年快樂、業績長紅！',c:['今天不准笑','明年都不放假','新年快樂、業績長紅！','獎金全部歸零']},
+ {q:'台一不動產統一編號為？',a:'91112200',c:['2200090','91122000','91112200','91111200']},
+ {q:'台一不動產目前有幾間營業處所？',a:'五間',c:['三間','四間','五間','六間']},
+ {q:'快問快答最後一題：台一不動產負責人叫什麼？',a:'鄭皓謙！',c:['鄭浩謙','鄭晧兼','鄭皓謙','鄭告謙']}
+];
+let questions = initialQuestions.map(x=>({...x}));
+let index = 0, seconds = 15, timer = null, teams = [{name:'第 1 隊',score:0},{name:'第 2 隊',score:0},{name:'第 3 隊',score:0},{name:'第 4 隊',score:0}];
+const $ = id => document.getElementById(id);
+function stopTimer(){ if(timer){clearInterval(timer);timer=null;} }
+function setStatus(s){$('status').textContent=s;}
+function render(){
+ const item=questions[index]; if(!item)return;
+ $('roundPill').textContent=`第 ${index+1} 題 / 共 ${questions.length} 題`;
+ $('qNumber').textContent=`QUESTION ${String(index+1).padStart(2,'0')}`;
+ $('question').textContent=item.q;
+ $('answer').textContent='答案：'+item.a;
+ $('answer').classList.remove('show');
+ $('choices').innerHTML='';
+ (item.c||[]).forEach((choice,i)=>{const d=document.createElement('div');d.className='choice';const b=document.createElement('b');b.textContent=String.fromCharCode(65+i)+'.';d.append(b,document.createTextNode(' '+choice));$('choices').appendChild(d);});
+ seconds=15; updateTimer();
+ $('prevBtn').disabled=index===0; $('nextBtn').disabled=index===questions.length-1;
+ $('startBtn').textContent='▶ 開始倒數';
+}
+function updateTimer(){ $('timeText').textContent=seconds; $('timerBar').style.width=(seconds/15*100)+'%'; }
+function startTimer(){ stopTimer(); seconds=15;updateTimer();setStatus('倒數開始！請各隊準備搶答！');timer=setInterval(()=>{seconds--;updateTimer();if(seconds<=0){stopTimer();setStatus('時間到！主持人可以揭曉答案。');$('startBtn').textContent='↻ 再倒數一次';}},1000); }
+function reveal(){stopTimer();$('answer').classList.add('show');setStatus('答案揭曉！答對的隊伍記得加分。');}
+function renderTeams(){ $('teams').innerHTML=''; teams.forEach((t,i)=>{const row=document.createElement('div');row.className='team';const name=document.createElement('div');name.className='team-name';name.textContent=t.name;const score=document.createElement('div');score.className='score';score.textContent=t.score;const controls=document.createElement('div');controls.className='score-buttons';[['−1',-1],['+1',1]].forEach(([label,delta])=>{const btn=document.createElement('button');btn.className='soft mini';btn.textContent=label;btn.setAttribute('aria-label',t.name+label+'分');btn.onclick=()=>{t.score=Math.max(0,t.score+delta);renderTeams();};controls.appendChild(btn);});row.append(name,score,controls);$('teams').appendChild(row);}); }
+$('startBtn').onclick=startTimer; $('revealBtn').onclick=reveal;
+$('nextBtn').onclick=()=>{if(index<questions.length-1){stopTimer();index++;render();setStatus('新題目準備好了！');}};
+$('prevBtn').onclick=()=>{if(index>0){stopTimer();index--;render();setStatus('已回到上一題。');}};
+$('resetBtn').onclick=()=>{stopTimer();index=0;teams.forEach(t=>t.score=0);render();renderTeams();setStatus('遊戲已重新開始，祝大家玩得開心！');};
+$('addTeamBtn').onclick=()=>{const name=$('teamName').value.trim();if(!name){setStatus('請先輸入隊伍名稱。');return;}if(teams.some(t=>t.name===name)){setStatus('這個隊伍名稱已經存在。');return;}teams.push({name,score:0});$('teamName').value='';renderTeams();setStatus('已新增隊伍：'+name);};
+$('saveQuestionBtn').onclick=()=>{const q=$('newQuestion').value.trim(),a=$('newAnswer').value.trim();if(!q||!a){setStatus('請至少填寫題目和正確答案。');return;}const choices=[$('newA').value.trim(),$('newB').value.trim(),$('newC').value.trim(),$('newD').value.trim()].filter(Boolean);questions.push({q,a,c:choices});$('newQuestion').value='';$('newAnswer').value='';['newA','newB','newC','newD'].forEach(id=>$(id).value='');render();setStatus('新題目已加入題庫！目前共 '+questions.length+' 題。');};
+render();renderTeams();
+</script>
+</body>
+</html>
